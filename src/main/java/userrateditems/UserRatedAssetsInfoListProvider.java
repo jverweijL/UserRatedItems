@@ -68,15 +68,13 @@ public class UserRatedAssetsInfoListProvider implements InfoListProvider<AssetEn
 			User user = infoListProviderContext.getUser();
 			List<AssetEntry> assets = _assetHelper.getAssetEntries(hits);
 
-			int i = 0;
-			for (Document doc:hits.getDocs()) {
-				RatingsEntry rating = _RatingsEntryLocalService.fetchEntry(user.getUserId(), doc.getField("entryClassName").getValue(), Long.valueOf(doc.getField("entryClassPK").getValue()));
-				if (rating != null ) {
-					//System.out.println("rating" + rating.getScore());
-				} else {
-					assets.remove(i);
+			Iterator<AssetEntry> entries = assets.iterator();
+			while (entries.hasNext()) {
+				AssetEntry entry = entries.next();
+				RatingsEntry rating = _RatingsEntryLocalService.fetchEntry(user.getUserId(), entry.getClassName(), entry.getClassPK());
+				if (rating == null ) {
+					entries.remove();
 				}
-				i = i++;
 			}
 
 			return assets;
